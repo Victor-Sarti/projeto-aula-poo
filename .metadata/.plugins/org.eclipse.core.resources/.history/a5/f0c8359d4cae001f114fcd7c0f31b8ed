@@ -1,0 +1,125 @@
+package br.senac.sp.projetopoo.view;
+
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+
+import br.senac.sp.projetopoo.dao.EMFactory;
+import br.senac.sp.projetopoo.dao.InterfaceDao;
+import br.senac.sp.projetopoo.dao.ProdutoDaoHib;
+import br.senac.sp.projetopoo.modelo.Marca;
+import br.senac.sp.projetopoo.modelo.Produto;
+import javax.swing.border.EmptyBorder;
+public class FrameProduto extends JFrame {
+
+    private static final long serialVersionUID = 1L;
+    private JPanel contentPane;
+    private JTextField tfIdP;
+    private JTextField tfModeloP;
+    private JTextField tfBuscarP;
+    private JTextField tfPrecoP;
+    private Produto produto;
+
+    /**
+     * Create the frame.
+     */
+    public FrameProduto() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 419, 563);
+        contentPane = new JPanel();
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+        setContentPane(contentPane);
+        contentPane.setLayout(null);
+
+        JPanel contentPane_1 = new JPanel();
+        contentPane_1.setLayout(null);
+        contentPane_1.setBorder(new EmptyBorder(5, 5, 5, 5));
+        contentPane_1.setBounds(36, 11, 357, 457);
+        contentPane.add(contentPane_1);
+
+        JLabel lblNewLabel = new JLabel("ID: ");
+        lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        lblNewLabel.setBounds(49, 12, 46, 14);
+        contentPane_1.add(lblNewLabel);
+
+        JLabel lblNome = new JLabel("MODELO: ");
+        lblNome.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        lblNome.setBounds(49, 50, 64, 14);
+        contentPane_1.add(lblNome);
+
+        tfIdP = new JTextField();
+        tfIdP.setEditable(false);
+        tfIdP.setColumns(10);
+        tfIdP.setBounds(115, 11, 137, 20);
+        contentPane_1.add(tfIdP);
+
+        tfModeloP = new JTextField();
+        tfModeloP.setColumns(10);
+        tfModeloP.setBounds(115, 49, 137, 20);
+        contentPane_1.add(tfModeloP);
+
+        JButton btnSalvarP = new JButton("Salvar");
+        btnSalvarP.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (tfModeloP.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(FrameProduto.this, "Informe o Modelo", "Aviso",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    tfModeloP.requestFocus(); // para o cursor ficar piscando
+                } else {
+                    if (produto == null) {
+                        produto = new Produto();
+                    }
+                    produto.setNome(tfModeloP.getText().trim());
+                    produto.setPreco(Double.parseDouble(tfPrecoP.getText().trim())); // Supondo que o preço seja numérico
+
+                    try {
+                        // Supondo que você tenha um DAO para persistir o produto
+                        ProdutoDaoHib dao = new ProdutoDaoHib(null);
+                        if (produto.getId() == 0) { // Se o id for 0, é um novo produto
+                            dao.inserir(produto);
+                        } else { // Caso contrário, é um produto já existente
+                            dao.alterar(produto);
+                        }
+
+                        // Atualizar a lista de produtos ou fazer outra operação após salvar
+                        limparCampos();
+                    } catch (SQLException | IOException e1) {
+                        JOptionPane.showMessageDialog(FrameProduto.this, e1.getMessage(), "Erro",
+                                JOptionPane.ERROR_MESSAGE);
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+        btnSalvarP.setMnemonic('s');
+        btnSalvarP.setBounds(20, 214, 69, 23);
+        contentPane_1.add(btnSalvarP);
+
+        // Botões de Excluir, Limpar e outros códigos podem seguir a mesma lógica...
+    }
+
+    private void limparCampos() {
+        tfIdP.setText("");
+        tfModeloP.setText("");
+        tfPrecoP.setText("");
+        produto = null; // Limpa a referência do produto
+    }
+}
+}
